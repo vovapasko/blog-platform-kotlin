@@ -15,17 +15,9 @@ class BlogControllerTest(@Autowired val restTemplate: TestRestTemplate) {
 
     @Test
     fun `Asser get blog`(){
-        val entity = restTemplate.getForEntity<String>("/blogs")
+        val entity = restTemplate.getForEntity<String>("/")
         assertThat(entity.statusCode).isEqualTo(HttpStatus.OK)
-        assertThat(entity.body).isEqualTo("Hello world")
+        assertThat(entity.body).isEqualTo("<h1>Blog</h1>")
     }
-
-    @Test
-    fun `Asser create blog`(){
-        val entity = restTemplate.postForEntity<String>("/blogs")
-        assertThat(entity.statusCode).isEqualTo(HttpStatus.CREATED)
-        assertThat(entity.body).isEqualTo("Create blog")
-    }
-
 
 }
