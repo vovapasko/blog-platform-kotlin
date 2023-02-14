@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.client.TestRestTemplate
 import org.springframework.boot.test.web.client.getForEntity
-import org.springframework.boot.test.web.client.postForEntity
 import org.springframework.http.HttpStatus
 
 
@@ -22,14 +21,19 @@ class BlogControllerTest(@Autowired val restTemplate: TestRestTemplate) {
 
     @Test
     fun `Asser get blog`(){
+        println(">> Assert blog page title, content and status code")
         val entity = restTemplate.getForEntity<String>("/")
         assertThat(entity.statusCode).isEqualTo(HttpStatus.OK)
-        assertThat(entity.body).contains("<h1>Blog</h1>")
+        assertThat(entity.body).contains("<h1>Blog</h1>", "Lorem")
     }
 
     @Test
     fun `Assert article page title, content and status code`() {
-        println(">> TODO")
+        println(">> Assert article page title, content and status code")
+        val title = "Lorem"
+        val entity = restTemplate.getForEntity<String>("/article/${title.toSlug()}")
+        assertThat(entity.statusCode).isEqualTo(HttpStatus.OK)
+        assertThat(entity.body).contains(title, "Lorem", "dolor sit amet")
     }
 
     @AfterAll
