@@ -1,4 +1,4 @@
-package com.example.blogplatform.controller
+package com.example.blogplatform
 
 import org.assertj.core.api.AssertionsForClassTypes.assertThat
 import org.junit.jupiter.api.AfterAll
