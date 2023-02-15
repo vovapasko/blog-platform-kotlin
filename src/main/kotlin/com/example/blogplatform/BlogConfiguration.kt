@@ -1,5 +1,9 @@
 package com.example.blogplatform
 
+import com.example.blogplatform.models.Article
+import com.example.blogplatform.models.User
+import com.example.blogplatform.repositories.ArticleRepository
+import com.example.blogplatform.repositories.UserRepository
 import org.springframework.boot.ApplicationRunner
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration

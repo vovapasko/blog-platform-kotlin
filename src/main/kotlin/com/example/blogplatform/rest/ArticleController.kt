@@ -1,5 +1,7 @@
-package com.example.blogplatform
+package com.example.blogplatform.rest
 
+
+import com.example.blogplatform.repositories.ArticleRepository
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -19,18 +21,4 @@ class ArticleController(private val repository: ArticleRepository) {
         HttpStatus.NOT_FOUND, "This article does not exist"
     )
 
-}
-
-@RestController
-@RequestMapping("/api/user")
-class UserController(private val repository: UserRepository) {
-
-    @GetMapping("/")
-    fun findAll() = repository.findAll()
-
-    @GetMapping("/{login}")
-    fun findByLogin(@PathVariable login: String) =
-        repository.findByLogin(login) ?: throw ResponseStatusException(
-            HttpStatus.NOT_FOUND, "This user does not exist"
-        )
 }

@@ -1,5 +1,8 @@
 package com.example.blogplatform
 
+import com.example.blogplatform.models.Article
+import com.example.blogplatform.models.User
+import com.example.blogplatform.repositories.ArticleRepository
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
