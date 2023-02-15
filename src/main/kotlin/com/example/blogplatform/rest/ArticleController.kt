@@ -1,7 +1,7 @@
 package com.example.blogplatform.rest
 
 
-import com.example.blogplatform.repositories.ArticleRepository
+import com.example.blogplatform.services.ArticleService
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
@@ -12,17 +12,20 @@ import org.springframework.web.server.ResponseStatusException
 
 @RestController
 @RequestMapping("/api/article")
-class ArticleController(private val repository: ArticleRepository) {
+class ArticleController(private val service: ArticleService) {
 
     @GetMapping("/")
-    fun findAll() = repository.findByOrderByAddedAtDesc()
+    fun findAll() = service.findByOrderByAddedAtDesc()
 
     @GetMapping("/{slug}")
-    fun findOne(@PathVariable slug: String) = repository.findBySlug(slug) ?: throw ResponseStatusException(
+    fun findOne(@PathVariable slug: String) = service.findBySlug(slug) ?: throw ResponseStatusException(
         HttpStatus.NOT_FOUND, "This article does not exist"
     )
 
     @DeleteMapping("/{id}")
-    fun deleteOne(@PathVariable id: String) = repository.deleteArticleById(id.toLong())
+    fun deleteOne(@PathVariable id: String) =
+        if (service.deleteArticleById(id.toLong())) Unit else throw ResponseStatusException(
+            HttpStatus.NOT_FOUND, "This article does not exist"
+        )
 
 }
