@@ -1,5 +1,6 @@
 package com.example.blogplatform.services
 
+import com.example.blogplatform.models.Post
 import com.example.blogplatform.repositories.PostRepository
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
@@ -19,5 +20,7 @@ class PostService(private val repository: PostRepository) {
         false
     }
 
+    @Transactional
+    fun createPost(post: Post) = repository.save(post)
 
 }
