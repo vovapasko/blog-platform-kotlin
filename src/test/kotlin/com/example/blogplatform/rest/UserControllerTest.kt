@@ -13,7 +13,7 @@ import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 
-@WebMvcTest
+@WebMvcTest(UserController::class)
 class UserControllerTest(@Autowired val mockMvc: MockMvc) {
 
     @MockkBean
