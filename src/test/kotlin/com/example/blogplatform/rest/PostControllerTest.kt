@@ -83,6 +83,12 @@ internal class PostControllerTest(
     fun `Create post get 204`() {
         every { postService.createPost(any()) } returns lorem5Post
         every { userController.findByLogin(any()) } returns johnDoe
+        val expectedPost = ApiPost(
+            title = lorem5Post.title,
+            content = lorem5Post.content,
+            author = johnDoe.login
+        )
+
         mockMvc.perform(
             MockMvcRequestBuilders.post("/api/article/")
                 .accept(MediaType.APPLICATION_JSON)
@@ -91,7 +97,8 @@ internal class PostControllerTest(
         )
             .andExpect(MockMvcResultMatchers.status().isCreated)
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-            .andExpect(content().json(mapper.writeValueAsString(lorem5Post)))
+            .andExpect(content().json(mapper.writeValueAsString(expectedPost)))
+        
         verify(exactly = 1) { postService.createPost(any()) }
     }
 
