@@ -5,6 +5,7 @@ import com.example.blogplatform.models.request.ApiPostRequest
 import com.example.blogplatform.repositories.UserRepository
 import com.example.blogplatform.rest.model.ApiPost
 import com.example.blogplatform.services.PostService
+import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -43,7 +44,7 @@ class PostController(
     @PostMapping("/", consumes = [MediaType.APPLICATION_JSON_VALUE])
     @ResponseStatus(value = HttpStatus.CREATED)
     fun createPost(
-        @RequestBody apiPostRequest: ApiPostRequest
+        @RequestBody @Valid apiPostRequest: ApiPostRequest
     ): ApiPost {
         val user = userRepository.findByLogin(apiPostRequest.authorLogin)
         val post = user?.let { ApiPostRequest.toPost(apiPostRequest, it) }
