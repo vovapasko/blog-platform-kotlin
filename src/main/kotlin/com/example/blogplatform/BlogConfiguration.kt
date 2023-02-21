@@ -1,8 +1,8 @@
 package com.example.blogplatform
 
-import com.example.blogplatform.models.Article
+import com.example.blogplatform.models.Post
 import com.example.blogplatform.models.User
-import com.example.blogplatform.repositories.ArticleRepository
+import com.example.blogplatform.repositories.PostRepository
 import com.example.blogplatform.repositories.UserRepository
 import org.springframework.boot.ApplicationRunner
 import org.springframework.context.annotation.Bean
@@ -14,19 +14,19 @@ class BlogConfiguration {
     @Bean
     fun databaseInitializer(
         userRepository: UserRepository,
-        articleRepository: ArticleRepository
+        postRepository: PostRepository
     ) = ApplicationRunner {
         val johnDoe = userRepository.save(User("johnDoe", "John", "Doe"))
-        articleRepository.save(
-            Article(
+        postRepository.save(
+            Post(
                 title = "Lorem",
                 headline = "Lorem",
                 content = "dolor sit amet",
                 author = johnDoe
             )
         )
-        articleRepository.save(
-            Article(
+        postRepository.save(
+            Post(
                 title = "Ipsum",
                 headline = "Ipsum",
                 content = "dolor sit amet",

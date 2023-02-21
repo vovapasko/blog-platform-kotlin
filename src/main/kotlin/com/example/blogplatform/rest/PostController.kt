@@ -1,7 +1,7 @@
 package com.example.blogplatform.rest
 
 
-import com.example.blogplatform.services.ArticleService
+import com.example.blogplatform.services.PostService
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
@@ -12,7 +12,7 @@ import org.springframework.web.server.ResponseStatusException
 
 @RestController
 @RequestMapping("/api/article")
-class ArticleController(private val service: ArticleService) {
+class PostController(private val service: PostService) {
 
     @GetMapping("/")
     fun findAll() = service.findByOrderByAddedAtDesc()

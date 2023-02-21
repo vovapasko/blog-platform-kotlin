@@ -2,7 +2,7 @@ package com.example.blogplatform.rest
 
 import com.example.blogplatform.models.User
 import com.example.blogplatform.repositories.UserRepository
-import com.example.blogplatform.services.ArticleService
+import com.example.blogplatform.services.PostService
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import org.junit.jupiter.api.Test
@@ -17,7 +17,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 class UserControllerTest(@Autowired val mockMvc: MockMvc) {
 
     @MockkBean
-    lateinit var userService: ArticleService
+    lateinit var userService: PostService
 
     @MockkBean
     lateinit var userRepository: UserRepository

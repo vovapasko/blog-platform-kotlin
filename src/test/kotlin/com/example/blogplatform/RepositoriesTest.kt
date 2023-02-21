@@ -1,8 +1,8 @@
 package com.example.blogplatform
 
-import com.example.blogplatform.models.Article
+import com.example.blogplatform.models.Post
 import com.example.blogplatform.models.User
-import com.example.blogplatform.repositories.ArticleRepository
+import com.example.blogplatform.repositories.PostRepository
 import com.example.blogplatform.repositories.UserRepository
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -16,18 +16,18 @@ import org.springframework.data.repository.findByIdOrNull
 class RepositoriesTests @Autowired constructor(
     val entityManager: TestEntityManager,
     val userRepository: UserRepository,
-    val articleRepository: ArticleRepository
+    val postRepository: PostRepository
 ) {
 
     @Test
     fun `When findByIdOrNull then return Article`() {
         val johnDoe = User("johnDoe", "John", "Doe")
         entityManager.persist(johnDoe)
-        val article = Article("Lorem", "Lorem", "dolor sit amet", johnDoe)
-        entityManager.persist(article)
+        val post = Post("Lorem", "Lorem", "dolor sit amet", johnDoe)
+        entityManager.persist(post)
         entityManager.flush()
-        val found = articleRepository.findByIdOrNull(article.id!!)
-        assertThat(found).isEqualTo(article)
+        val found = postRepository.findByIdOrNull(post.id!!)
+        assertThat(found).isEqualTo(post)
     }
 
     @Test

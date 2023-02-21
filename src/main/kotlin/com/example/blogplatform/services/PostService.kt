@@ -1,11 +1,11 @@
 package com.example.blogplatform.services
 
-import com.example.blogplatform.repositories.ArticleRepository
+import com.example.blogplatform.repositories.PostRepository
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 
 @Component
-class ArticleService(private val repository: ArticleRepository) {
+class PostService(private val repository: PostRepository) {
 
     fun findBySlug(slug: String) = repository.findBySlug(slug)
 

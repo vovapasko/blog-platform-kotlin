@@ -1,8 +1,8 @@
 package com.example.blogplatform
 
-import com.example.blogplatform.models.Article
+import com.example.blogplatform.models.Post
 import com.example.blogplatform.models.User
-import com.example.blogplatform.repositories.ArticleRepository
+import com.example.blogplatform.repositories.PostRepository
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
@@ -13,7 +13,7 @@ import org.springframework.web.server.ResponseStatusException
 
 @Controller
 class HtmlController(
-    private val repository: ArticleRepository,
+    private val repository: PostRepository,
     private val properties: BlogProperties
 ) {
 
@@ -36,7 +36,7 @@ class HtmlController(
         return "article"
     }
 
-    fun Article.render() = RenderedArticle(
+    fun Post.render() = RenderedArticle(
         slug,
         title,
         headline,

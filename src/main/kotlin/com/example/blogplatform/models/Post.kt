@@ -8,7 +8,7 @@ import jakarta.persistence.ManyToOne
 import java.time.LocalDateTime
 
 @Entity
-class Article(
+class Post(
     var title: String,
     var headline: String,
     var content: String,
