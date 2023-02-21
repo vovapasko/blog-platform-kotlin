@@ -2,10 +2,14 @@ package com.example.blogplatform.rest
 
 import com.example.blogplatform.models.Post
 import com.example.blogplatform.models.User
+import com.example.blogplatform.models.request.ApiPostRequest
 import com.example.blogplatform.repositories.PostRepository
+import com.example.blogplatform.rest.model.ApiPost
 import com.example.blogplatform.services.PostService
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
+import io.mockk.verify
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -16,19 +20,31 @@ import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
 
 
 @WebMvcTest(PostController::class)
-class PostControllerTest(
+internal class PostControllerTest(
     @Autowired val mockMvc: MockMvc,
 ) {
     @MockkBean
-    lateinit var postService: PostService
+    private lateinit var postService: PostService
 
     @MockkBean
-    lateinit var postRepository: PostRepository
+    private lateinit var userController: UserController
+
+    private val mapper = jacksonObjectMapper()
+
+    @MockkBean
+    private lateinit var postRepository: PostRepository
 
     companion object {
+        val mockApiPostRequest = ApiPostRequest(
+            "Lorem",
+            "dolor sit amet",
+            "johnDoe"
+        )
+
         val johnDoe = User("johnDoe", "John", "Doe")
         val lorem5Post = Post("Lorem", "Lorem", "dolor sit amet", johnDoe, id = 1)
         val ipsumPost = Post("Ipsum", "Ipsum", "dolor sit amet", johnDoe, id = 2)
@@ -61,6 +77,22 @@ class PostControllerTest(
         every { postService.deleteArticleById(nonExistingId.toLong()) } returns false
         mockMvc.perform(MockMvcRequestBuilders.delete("/api/article/${nonExistingId}"))
             .andExpect(MockMvcResultMatchers.status().isNotFound)
+    }
+
+    @Test
+    fun `Create post get 204`() {
+        every { postService.createPost(any()) } returns lorem5Post
+        every { userController.findByLogin(any()) } returns johnDoe
+        mockMvc.perform(
+            MockMvcRequestBuilders.post("/api/article/")
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(mapper.writeValueAsString(mockApiPostRequest))
+        )
+            .andExpect(MockMvcResultMatchers.status().isCreated)
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(content().json(mapper.writeValueAsString(lorem5Post)))
+        verify(exactly = 1) { postService.createPost(any()) }
     }
 
 }
