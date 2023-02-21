@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.server.ResponseStatusException
 
@@ -23,6 +24,7 @@ class PostController(private val service: PostService) {
     )
 
     @DeleteMapping("/{id}")
+    @ResponseStatus(value = HttpStatus.NO_CONTENT)
     fun deleteOne(@PathVariable id: String) =
         if (service.deleteArticleById(id.toLong())) Unit else throw ResponseStatusException(
             HttpStatus.NOT_FOUND, "This article does not exist"
