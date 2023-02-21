@@ -4,17 +4,18 @@ import com.example.blogplatform.models.Post
 import com.example.blogplatform.models.User
 import com.example.blogplatform.models.request.ApiPostRequest
 import com.example.blogplatform.repositories.PostRepository
+import com.example.blogplatform.repositories.UserRepository
 import com.example.blogplatform.rest.model.ApiPost
 import com.example.blogplatform.services.PostService
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import io.mockk.verify
-import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.Arguments
+import org.junit.jupiter.params.provider.CsvSource
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
@@ -31,12 +32,13 @@ internal class PostControllerTest(
     private lateinit var postService: PostService
 
     @MockkBean
-    private lateinit var userController: UserController
+    private lateinit var userRepository: UserRepository
 
     private val mapper = jacksonObjectMapper()
 
     @MockkBean
     private lateinit var postRepository: PostRepository
+
 
     companion object {
         val mockApiPostRequest = ApiPostRequest(
@@ -48,6 +50,8 @@ internal class PostControllerTest(
         val johnDoe = User("johnDoe", "John", "Doe")
         val lorem5Post = Post("Lorem", "Lorem", "dolor sit amet", johnDoe, id = 1)
         val ipsumPost = Post("Ipsum", "Ipsum", "dolor sit amet", johnDoe, id = 2)
+
+
     }
 
 
@@ -82,7 +86,7 @@ internal class PostControllerTest(
     @Test
     fun `Create post get 204`() {
         every { postService.createPost(any()) } returns lorem5Post
-        every { userController.findByLogin(any()) } returns johnDoe
+        every { userRepository.findByLogin(any()) } returns johnDoe
         val expectedPost = ApiPost(
             title = lorem5Post.title,
             content = lorem5Post.content,
@@ -90,16 +94,50 @@ internal class PostControllerTest(
         )
 
         mockMvc.perform(
-            MockMvcRequestBuilders.post("/api/article/")
-                .accept(MediaType.APPLICATION_JSON)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(mapper.writeValueAsString(mockApiPostRequest))
+            makePostRequest(mockApiPostRequest)
         )
             .andExpect(MockMvcResultMatchers.status().isCreated)
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(content().json(mapper.writeValueAsString(expectedPost)))
-        
+
         verify(exactly = 1) { postService.createPost(any()) }
     }
+
+    @Test
+    fun `Create post with non existing user return 403`() {
+
+        every { userRepository.findByLogin(any()) } returns null
+
+        mockMvc.perform(
+            makePostRequest(mockApiPostRequest.copy(authorLogin = "doesNotExist"))
+        )
+            .andExpect(MockMvcResultMatchers.status().isBadRequest)
+        verify(exactly = 1) { userRepository.findByLogin(any()) }
+        verify(exactly = 0) { postService.createPost(any()) }
+    }
+
+    @ParameterizedTest
+    @CsvSource(
+        "null, 'content', 'johnDoe'",
+        "'title', null, 'johnDoe'",
+        "'title', 'content', null"
+    )
+    fun `Create post with empty fields return 403`(
+        title: String?,
+        content: String?,
+        authorLogin: String?
+    ) {
+        val request = ApiPostRequest(title.orEmpty(), content.orEmpty(), authorLogin.orEmpty())
+        mockMvc.perform(
+            makePostRequest(request)
+        ).andExpect(MockMvcResultMatchers.status().isBadRequest)
+    }
+
+
+    private fun makePostRequest(body: ApiPostRequest) = MockMvcRequestBuilders.post("/api/article/")
+        .accept(MediaType.APPLICATION_JSON)
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(mapper.writeValueAsString(body))
+
 
 }
