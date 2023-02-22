@@ -12,11 +12,11 @@ import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
-import org.springframework.web.client.HttpClientErrorException.BadRequest
 import org.springframework.web.server.ResponseStatusException
 
 @RestController
@@ -55,5 +55,20 @@ class PostController(
         val createdPost = postService.createPost(post)
         return ApiPost.toApiPost(createdPost)
     }
+
+    @PutMapping("/{id}", consumes = [MediaType.APPLICATION_JSON_VALUE])
+    fun updatePost(
+        @PathVariable id: String,
+        @RequestBody @Valid apiPostRequest: ApiPostRequest
+    ): ApiPost {
+        val user = userRepository.findByLogin(apiPostRequest.authorLogin)
+        val updatedPost = user?.let { postService.updatePost(id, ApiPostRequest.toPost(apiPostRequest, it)) }
+            ?: throw ResponseStatusException(
+                HttpStatus.BAD_REQUEST,
+                "User ${apiPostRequest.authorLogin} does not exist"
+            )
+        return ApiPost.toApiPost(updatedPost)
+    }
+
 
 }

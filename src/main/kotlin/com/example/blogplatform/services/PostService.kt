@@ -2,6 +2,7 @@ package com.example.blogplatform.services
 
 import com.example.blogplatform.models.Post
 import com.example.blogplatform.repositories.PostRepository
+import jakarta.persistence.EntityNotFoundException
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 
@@ -22,5 +23,11 @@ class PostService(private val repository: PostRepository) {
 
     @Transactional
     fun createPost(post: Post) = repository.save(post)
+
+    fun updatePost(id: String, post: Post): Post {
+        val postToUpdate = repository.findById(id.toLong()).orElse(null)
+        postToUpdate?.let { repository.save(postToUpdate) }
+        return postToUpdate ?: throw EntityNotFoundException("Post not found")
+    }
 
 }
