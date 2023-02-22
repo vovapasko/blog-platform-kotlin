@@ -13,7 +13,6 @@ import io.mockk.every
 import io.mockk.verify
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
-import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.CsvSource
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
@@ -60,7 +59,7 @@ internal class PostControllerTest(
         every { postService.findByOrderByAddedAtDesc() } returns listOf(lorem5Post, ipsumPost)
         mockMvc.perform(MockMvcRequestBuilders.get("/api/article/").accept(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk)
-            .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("\$.[0].author.login").value(johnDoe.login))
             .andExpect(MockMvcResultMatchers.jsonPath("\$.[0].slug").value(lorem5Post.slug))
             .andExpect(MockMvcResultMatchers.jsonPath("\$.[1].author.login").value(johnDoe.login))
@@ -118,9 +117,9 @@ internal class PostControllerTest(
 
     @ParameterizedTest
     @CsvSource(
-        "null, 'content', 'johnDoe'",
-        "'title', null, 'johnDoe'",
-        "'title', 'content', null"
+        "'', 'content', 'johnDoe'",
+        "'title', '', 'johnDoe'",
+        "'title', 'content', ''"
     )
     fun `Create post with empty fields return 403`(
         title: String?,

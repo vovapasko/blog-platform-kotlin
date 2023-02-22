@@ -2,15 +2,15 @@ package com.example.blogplatform.models.request
 
 import com.example.blogplatform.models.Post
 import com.example.blogplatform.models.User
-import jakarta.validation.constraints.NotNull
+import jakarta.validation.constraints.NotBlank
 
 
 data class ApiPostRequest(
-    @NotNull
+    @field:NotBlank(message = "title must be set")
     val title: String,
-    @NotNull
+    @field:NotBlank(message = "content must be set")
     val content: String,
-    @NotNull
+    @field:NotBlank(message = "authorLogin must be set")
     val authorLogin: String
 ) {
     companion object {
