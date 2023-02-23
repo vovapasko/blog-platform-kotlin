@@ -11,6 +11,7 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import io.mockk.verify
+import jakarta.persistence.EntityNotFoundException
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
@@ -146,8 +147,49 @@ internal class PostControllerTest(
             makePutRequest(mockUpdatedPost)
         )
             .andExpect(status().isOk)
+
+        verify(exactly = 1) { userRepository.findByLogin(any()) }
+        verify(exactly = 1) { postService.updatePost(any(), any()) }
+
     }
 
+    @Test
+    fun `Update non existing post returns 400`() {
+        val mockUpdatedPost = mockApiPostRequest.copy(
+            title = "Failed Updated",
+            content = "Post"
+        )
+        val nonExistingId = "3"
+        every { userRepository.findByLogin(any()) } returns johnDoe
+        every { postService.updatePost(any(), any()) } throws EntityNotFoundException()
+
+        mockMvc.perform(
+            makePutRequest(mockUpdatedPost, id = nonExistingId)
+        )
+            .andExpect(status().isBadRequest)
+        verify(exactly = 1) { userRepository.findByLogin(any()) }
+        verify(exactly = 1) { postService.updatePost(any(), any()) }
+
+    }
+
+    @Test
+    fun `Update existing post with non existing user returns 400`() {
+        val mockUpdatedPost = mockApiPostRequest.copy(
+            title = "Failed Updated",
+            content = "Post"
+        )
+        val existingPostId = "2"
+        every { userRepository.findByLogin(any()) } returns null
+
+        mockMvc.perform(
+            makePutRequest(mockUpdatedPost, id = existingPostId)
+        )
+            .andExpect(status().isBadRequest)
+
+        verify(exactly = 1) { userRepository.findByLogin(any()) }
+        verify(exactly = 0) { postService.updatePost(any(), any()) }
+
+    }
 
     private fun makePutRequest(body: ApiPostRequest, id: String = "1") = MockMvcRequestBuilders.put(
         "/api/article/${id}"
