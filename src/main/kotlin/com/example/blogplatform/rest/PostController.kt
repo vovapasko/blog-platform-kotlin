@@ -5,6 +5,7 @@ import com.example.blogplatform.models.request.ApiPostRequest
 import com.example.blogplatform.repositories.UserRepository
 import com.example.blogplatform.rest.model.ApiPost
 import com.example.blogplatform.services.PostService
+import jakarta.persistence.EntityNotFoundException
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
@@ -62,7 +63,16 @@ class PostController(
         @RequestBody @Valid apiPostRequest: ApiPostRequest
     ): ApiPost {
         val user = userRepository.findByLogin(apiPostRequest.authorLogin)
-        val updatedPost = user?.let { postService.updatePost(id, ApiPostRequest.toPost(apiPostRequest, it)) }
+        val updatedPost = user?.let {
+            try {
+                postService.updatePost(id, ApiPostRequest.toPost(apiPostRequest, it))
+            } catch (e: EntityNotFoundException) {
+                throw ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Post with id $id does not exist"
+                )
+            }
+        }
             ?: throw ResponseStatusException(
                 HttpStatus.BAD_REQUEST,
                 "User ${apiPostRequest.authorLogin} does not exist"

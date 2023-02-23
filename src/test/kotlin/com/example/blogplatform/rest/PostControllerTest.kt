@@ -21,6 +21,7 @@ import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
 
 @WebMvcTest(PostController::class)
@@ -53,12 +54,11 @@ internal class PostControllerTest(
 
     }
 
-
     @Test
     fun `List articles`() {
         every { postService.findByOrderByAddedAtDesc() } returns listOf(lorem5Post, ipsumPost)
         mockMvc.perform(MockMvcRequestBuilders.get("/api/article/").accept(MediaType.APPLICATION_JSON))
-            .andExpect(MockMvcResultMatchers.status().isOk)
+            .andExpect(status().isOk)
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.jsonPath("\$.[0].author.login").value(johnDoe.login))
             .andExpect(MockMvcResultMatchers.jsonPath("\$.[0].slug").value(lorem5Post.slug))
@@ -71,7 +71,7 @@ internal class PostControllerTest(
         every { postService.deleteArticleById(lorem5Post.id!!) } returns true
 
         mockMvc.perform(MockMvcRequestBuilders.delete("/api/article/${lorem5Post.id}"))
-            .andExpect(MockMvcResultMatchers.status().isNoContent)
+            .andExpect(status().isNoContent)
     }
 
     @Test
@@ -79,7 +79,7 @@ internal class PostControllerTest(
         val nonExistingId = 1234
         every { postService.deleteArticleById(nonExistingId.toLong()) } returns false
         mockMvc.perform(MockMvcRequestBuilders.delete("/api/article/${nonExistingId}"))
-            .andExpect(MockMvcResultMatchers.status().isNotFound)
+            .andExpect(status().isNotFound)
     }
 
     @Test
@@ -95,7 +95,7 @@ internal class PostControllerTest(
         mockMvc.perform(
             makePostRequest(mockApiPostRequest)
         )
-            .andExpect(MockMvcResultMatchers.status().isCreated)
+            .andExpect(status().isCreated)
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(content().json(mapper.writeValueAsString(expectedPost)))
 
@@ -110,7 +110,7 @@ internal class PostControllerTest(
         mockMvc.perform(
             makePostRequest(mockApiPostRequest.copy(authorLogin = "doesNotExist"))
         )
-            .andExpect(MockMvcResultMatchers.status().isBadRequest)
+            .andExpect(status().isBadRequest)
         verify(exactly = 1) { userRepository.findByLogin(any()) }
         verify(exactly = 0) { postService.createPost(any()) }
     }
@@ -129,14 +129,41 @@ internal class PostControllerTest(
         val request = ApiPostRequest(title.orEmpty(), content.orEmpty(), authorLogin.orEmpty())
         mockMvc.perform(
             makePostRequest(request)
-        ).andExpect(MockMvcResultMatchers.status().isBadRequest)
+        ).andExpect(status().isBadRequest)
     }
+
+    @Test
+    fun `Update post returns 200`() {
+        val mockUpdatedPost = mockApiPostRequest.copy(
+            title = "Updated",
+            content = "Post"
+        )
+        val updatedPost = ApiPostRequest.toPost(mockUpdatedPost, author = johnDoe)
+        every { userRepository.findByLogin(any()) } returns johnDoe
+        every { postService.updatePost(any(), any()) } returns updatedPost
+
+        mockMvc.perform(
+            makePutRequest(mockUpdatedPost)
+        )
+            .andExpect(status().isOk)
+    }
+
+
+    private fun makePutRequest(body: ApiPostRequest, id: String = "1") = MockMvcRequestBuilders.put(
+        "/api/article/${id}"
+    )
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(
+            mapper.writeValueAsString(body)
+        )
 
 
     private fun makePostRequest(body: ApiPostRequest) = MockMvcRequestBuilders.post("/api/article/")
         .accept(MediaType.APPLICATION_JSON)
         .contentType(MediaType.APPLICATION_JSON)
-        .content(mapper.writeValueAsString(body))
+        .content(
+            mapper.writeValueAsString(body)
+        )
 
 
 }

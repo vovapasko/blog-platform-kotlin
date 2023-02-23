@@ -24,9 +24,16 @@ class PostService(private val repository: PostRepository) {
     @Transactional
     fun createPost(post: Post) = repository.save(post)
 
+    @Transactional
     fun updatePost(id: String, post: Post): Post {
         val postToUpdate = repository.findById(id.toLong()).orElse(null)
-        postToUpdate?.let { repository.save(postToUpdate) }
+        postToUpdate?.let {
+            it.content = post.content
+            it.title = post.title
+            it.headline = post.headline
+            it.slug = post.slug
+            repository.save(it)
+        }
         return postToUpdate ?: throw EntityNotFoundException("Post not found")
     }
 
